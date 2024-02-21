@@ -14,15 +14,21 @@ let channelSlug = 'stuck-in-an-a24-movie' // The “slug” is just the end of t
 // First, let’s lay out some *functions*, starting with our basic metadata:
 let placeChannelInfo = (data) => {
 	// Target some elements in your HTML:
-	// let channelTitle = document.getElementById('channel-title')
+	let channelTitle = document.getElementById('channel-title')
 	let channelDescription = document.getElementById('channel-description')
-	let channelCount = document.getElementById('channel-count')
+	// let channelCount = document.getElementById('channel-count')
 	let channelLink = document.getElementById('channel-link')
 
 	// Then set their content/attributes to our data:
+
 	// channelTitle.innerHTML = data.title
+	let titleArray = data.title.split(" ");
+	for (titleText in titleArray) {
+		let output = `<span class="h1text">` + titleArray[titleText] + `</span>`;
+		channelTitle.insertAdjacentHTML('beforeend', output)
+	}
+
 	channelDescription.innerHTML = window.markdownit().render(data.metadata.description) // Converts Markdown → HTML
-	channelCount.innerHTML = data.length
 	channelLink.href = `https://www.are.na/channel/${channelSlug}`
 }
 
@@ -37,14 +43,13 @@ let renderBlock = (block) => {
 	if (block.class == 'Link') {
 		let linkItem =
 			`
-			<li>
-				<p><em>Link</em></p>
+			<li class="block linkBlock">
 				<picture>
 					<source media="(max-width: 428px)" srcset="${ block.image.thumb.url }">
 					<source media="(max-width: 640px)" srcset="${ block.image.large.url }">
 					<img src="${ block.image.original.url }">
 				</picture>
-				<h3>${ block.title }</h3>
+				<h3 class="title">${ block.title }</h3>
 				${ block.description_html }
 				<p><a href="${ block.source.url }">See the original ↗</a></p>
 			</li>
@@ -54,12 +59,29 @@ let renderBlock = (block) => {
 
 	// Images!
 	else if (block.class == 'Image') {
-		// …up to you!
+		let imageItem =
+			`
+			<li class="block imageBlock">
+				<picture>
+					<source media="(max-width: 428px)" srcset="${ block.image.thumb.url }">
+					<source media="(max-width: 640px)" srcset="${ block.image.large.url }">
+					<img src="${ block.image.original.url }">
+				</picture>
+			</li>
+			`
+		channelBlocks.insertAdjacentHTML('beforeend', imageItem)
 	}
 
 	// Text!
 	else if (block.class == 'Text') {
-		// …up to you!
+		let textItem =
+			`
+			<li class="block textBlock">
+				<p>${ block.content }</p>
+				<h3 class="title">${ block.title }</h3>
+			</li>
+			`
+		channelBlocks.insertAdjacentHTML('beforeend', textItem)
 	}
 
 	// Uploaded (not linked) media…
@@ -71,8 +93,7 @@ let renderBlock = (block) => {
 			// …still up to you, but we’ll give you the `video` element:
 			let videoItem =
 				`
-				<li>
-					<p><em>Video</em></p>
+				<li class="block videoBlock">
 					<video controls src="${ block.attachment.url }"></video>
 				</li>
 				`
@@ -91,8 +112,7 @@ let renderBlock = (block) => {
 			// …still up to you, but here’s an `audio` element:
 			let audioItem =
 				`
-				<li>
-					<p><em>Audio</em></p>
+				<li class="block audioBlock">
 					<audio controls src="${ block.attachment.url }"></video>
 				</li>
 				`
@@ -110,8 +130,7 @@ let renderBlock = (block) => {
 			// …still up to you, but here’s an example `iframe` element:
 			let linkedVideoItem =
 				`
-				<li>
-					<!-- <p><em>Linked Video</em></p> -->
+				<li class="block videoBlock vimeoBlock">
 					${ block.embed.html }
 				</li>
 				`
@@ -121,7 +140,13 @@ let renderBlock = (block) => {
 
 		// Linked audio!
 		else if (embed.includes('rich')) {
-			// …up to you!
+			let linkedAudioItem =
+				`
+				<li class="block audioBlock">
+					${ block.embed.html }
+				</li>
+				`
+			channelBlocks.insertAdjacentHTML('beforeend', linkedAudioItem)
 		}
 	}
 }
@@ -160,4 +185,44 @@ fetch(`https://api.are.na/v2/channels/${channelSlug}?per=100`, { cache: 'no-stor
 		let channelUsers = document.getElementById('channel-users') // Show them together
 		data.collaborators.forEach((collaborator) => renderUser(collaborator, channelUsers))
 		renderUser(data.user, channelUsers)
+
+
+
+		//====== header bg video hover ======
+		let headerBG = document.querySelector('#headerBG')
+		let h1text = document.querySelectorAll('.h1text')
+
+		h1text.forEach((eachText) => {
+
+			eachText.onmouseenter = () => { // Attach the event.
+				headerBG.classList.add("active") // Toggle the class!
+			};
+			eachText.onmouseleave = () => { // Attach the event.
+				headerBG.classList.remove("active") // Toggle the class!
+			};
+		})
+
+
+		//====== show blocks when scroll ======
+		let showingClass = 'showBlock' // Variables again.
+		let showingBlocks = document.querySelectorAll('.block') // Get all of them.
+
+		// Loop through the list, doing this `forEach` one.
+		showingBlocks.forEach((block) => {
+			let sectionObserver = new IntersectionObserver((entries) => {
+				let [entry] = entries
+
+				if (entry.isIntersecting) {
+					block.classList.add(showingClass)
+				} else {
+					block.classList.remove(showingClass)
+				}
+			}, {
+				root: document, // This is only needed in the example iframe!
+				rootMargin: '-40% 0% -33% 0%', // CSS-ish: top/right/bottom/left.
+			})
+
+			sectionObserver.observe(block) // Watch each one!
+		})
+
 	})
