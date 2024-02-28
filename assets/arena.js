@@ -39,6 +39,7 @@ let renderBlock = (block) => {
 	// To start, a shared `ul` where we’ll insert all our blocks
 	let channelBlocks = document.getElementById('channel-blocks')
 	let item;
+	// let relaxSpeed = Math.floor(Math.random() * 2);
 
 	// Links!
 	if (block.class == 'Link') {
@@ -200,8 +201,12 @@ fetch(`https://api.are.na/v2/channels/${channelSlug}?per=100`, { cache: 'no-stor
 		let channelUsers = document.getElementById('channel-users') // Show them together
 		data.collaborators.forEach((collaborator) => renderUser(collaborator, channelUsers))
 		renderUser(data.user, channelUsers)
+		
 
-
+		//====== parallax scrolling ======
+		var rellax = new Rellax('.rellax', {
+			center: true
+		  });
 
 		//====== header bg video hover ======
 		let headerBG = document.querySelector('#headerBG')

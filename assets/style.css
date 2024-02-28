@@ -254,7 +254,7 @@ main {
 	overflow: hidden;
 }
 #intro img {
-	opacity: 5%;
+	opacity: 10%;
 	z-index: 0;
 	width: 200%;
 	object-fit: cover;
@@ -283,7 +283,7 @@ main {
 
 #channel-description {
 	font-size: calc(var(--font-size)*1.2);
-	opacity: 50%;
+	opacity: 60%;
 }
 @media (min-width: 630px) {
 	#channel-description {
