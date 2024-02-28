@@ -244,8 +244,9 @@ main {
 	max-width: 40em;
 }
 
+
 /* wave image */
-#intro div {
+#intro div:first-child {
 	position: absolute;
 	left: 0;
 	height: 100vh;
@@ -259,7 +260,6 @@ main {
 	object-fit: cover;
 	transform: scale(3);
 	transform-origin: top;
-	transform: translateZ(-50px);
 }
 @media (min-width: 400px) {
 	#intro img {
