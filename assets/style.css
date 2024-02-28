@@ -73,9 +73,13 @@ h1 {
 }
 .textBlock > p, .textBlock > blockquote > p{
 	font-family: "Prata", serif;
-	font-size: calc(var(--font-size)*2);
+	font-size: calc(var(--font-size)*1.5);
 }
-
+@media (min-width: 630px){
+	.textBlock > p, .textBlock > blockquote > p{
+		font-size: calc(var(--font-size)*2);
+	}
+}
 
 /* ==================== global margin ==================== */
 
@@ -414,10 +418,12 @@ main {
 }
 
 .textBlock .title{
-	/* position: static; */
 	bottom: 0px;
 	margin-top: calc(var(--gutter)/2);
 	margin-bottom: calc(var(--gutter)/2);
+}
+.textBlock > p + p, .textBlock h1 + p {
+	margin-top: calc(var(--gutter)/2);
 }
 
 @media (hover: hover){
