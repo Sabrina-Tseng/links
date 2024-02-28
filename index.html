@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html id="top">
 	<head>
 		<title>Stuck in an A24 movie</title>
 		<meta charset="utf-8">
@@ -19,22 +19,43 @@
 			<h1 id="channel-title">
 			</h1>
 			<video id="headerBG" src="assets/bg.mp4" muted autoplay loop></video>
-			<figure id="arrow">⌄</figure>
+			<a href="#main" id="downArrow">
+				<p>go down</p>
+				<figure>⌄</figure>
+			</a href="#main">
 		</header>
-		<main>
-			<div class="margin">
-				<section id="intro">
+		<main id="main">
+				<section class="margin" id="intro">
+					<div><img src="assets/line-texture.svg"></div>
 					<p id="channel-description"></p>
-					<p><a id="channel-link" target="_blank">See on Are.na ↗</a></p>
+					<p><a id="channel-link" target="_blank">See on Are.na <span class="arrow">↗</span></a></p>
 				</section>
-				<section>
+				<section id="filter">
+					<p>
+						<span class="showImage">image</span> 
+						<span class="showVideo">video</span> 
+						<span class="showText">text</span> 
+						<span class="showAudio">audio</span> 
+						<span class="showLink">link</span>&nbsp;
+					</p>
+					<p>
+						<span class="showImage">image</span> 
+						<span class="showVideo">video</span> 
+						<span class="showText">text</span> 
+						<span class="showAudio">audio</span> 
+						<span class="showLink">link</span>&nbsp;
+					</p>
+				</section>
+				<section class="margin">
 					<ul id="channel-blocks"></ul>
 				</section>
-			</div>
+				<footer>
+					<div>
+						<p>Curated by</p>
+						<section id="channel-users"></section>
+					</div>
+					<a href="#top">back to top</a>
+				</footer>
 		</main>
-		<footer>
-			<h2>Your authors</h2>
-			<section id="channel-users"></section>
-		</footer>
 	</body>
 </html>

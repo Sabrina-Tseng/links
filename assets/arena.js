@@ -38,50 +38,37 @@ let placeChannelInfo = (data) => {
 let renderBlock = (block) => {
 	// To start, a shared `ul` where we’ll insert all our blocks
 	let channelBlocks = document.getElementById('channel-blocks')
+	let item;
 
 	// Links!
 	if (block.class == 'Link') {
-		let linkItem =
+		item =
 			`
-			<li class="block linkBlock">
+			<li class="block linkBlock" style="opacity:${ block.position }%">
 				<picture>
-					<source media="(max-width: 428px)" srcset="${ block.image.thumb.url }">
-					<source media="(max-width: 640px)" srcset="${ block.image.large.url }">
-					<img src="${ block.image.original.url }">
+					<a href="${ block.source.url }" target="blank"><img src="${ block.image.original.url }"></a>
 				</picture>
-				<h3 class="title">${ block.title }</h3>
-				${ block.description_html }
-				<p><a href="${ block.source.url }">See the original ↗</a></p>
-			</li>
 			`
-		channelBlocks.insertAdjacentHTML('beforeend', linkItem)
 	}
 
 	// Images!
 	else if (block.class == 'Image') {
-		let imageItem =
+		item =
 			`
-			<li class="block imageBlock">
+			<li class="block imageBlock" style="opacity:${ block.position }%">
 				<picture>
-					<source media="(max-width: 428px)" srcset="${ block.image.thumb.url }">
-					<source media="(max-width: 640px)" srcset="${ block.image.large.url }">
 					<img src="${ block.image.original.url }">
 				</picture>
-			</li>
 			`
-		channelBlocks.insertAdjacentHTML('beforeend', imageItem)
 	}
 
 	// Text!
 	else if (block.class == 'Text') {
-		let textItem =
+		item =
 			`
-			<li class="block textBlock">
-				<p>${ block.content }</p>
-				<h3 class="title">${ block.title }</h3>
-			</li>
+			<li class="block textBlock" style="opacity:${ block.position }%">
+				${ block.content_html }
 			`
-		channelBlocks.insertAdjacentHTML('beforeend', textItem)
 	}
 
 	// Uploaded (not linked) media…
@@ -91,32 +78,34 @@ let renderBlock = (block) => {
 		// Uploaded videos!
 		if (attachment.includes('video')) {
 			// …still up to you, but we’ll give you the `video` element:
-			let videoItem =
+			item =
 				`
-				<li class="block videoBlock">
+				<li class="block videoBlock" style="opacity:${ block.position }%">
 					<video controls src="${ block.attachment.url }"></video>
-				</li>
 				`
-			channelBlocks.insertAdjacentHTML('beforeend', videoItem)
 			// More on video, like the `autoplay` attribute:
 			// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
 		}
 
 		// Uploaded PDFs!
 		else if (attachment.includes('pdf')) {
-			// …up to you!
+			item =
+				`
+				<li class="block pdfBlock" style="opacity:${ block.position }%">
+					<picture>
+						<a href="${ block.attachment.url } target="blank"" target="blank"><img src="${ block.image.original.url }"></a>
+					</picture>
+					`
 		}
 
 		// Uploaded audio!
 		else if (attachment.includes('audio')) {
 			// …still up to you, but here’s an `audio` element:
-			let audioItem =
+			item =
 				`
-				<li class="block audioBlock">
+				<li class="block audioBlock" style="opacity:${ block.position }%">
 					<audio controls src="${ block.attachment.url }"></video>
-				</li>
 				`
-			channelBlocks.insertAdjacentHTML('beforeend', audioItem)
 			// More on audio: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio
 		}
 	}
@@ -128,27 +117,54 @@ let renderBlock = (block) => {
 		// Linked video!
 		if (embed.includes('video')) {
 			// …still up to you, but here’s an example `iframe` element:
-			let linkedVideoItem =
+			item =
 				`
-				<li class="block videoBlock vimeoBlock">
+				<li class="block videoBlock vimeoBlock" style="opacity:${ block.position }%">
 					${ block.embed.html }
-				</li>
+
 				`
-			channelBlocks.insertAdjacentHTML('beforeend', linkedVideoItem)
 			// More on iframe: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe
 		}
 
 		// Linked audio!
 		else if (embed.includes('rich')) {
-			let linkedAudioItem =
+			item =
 				`
-				<li class="block audioBlock">
+				<li class="block audioBlock" style="opacity:${ block.position }%">
 					${ block.embed.html }
-				</li>
 				`
-			channelBlocks.insertAdjacentHTML('beforeend', linkedAudioItem)
 		}
 	}
+
+	if ( block.title.includes('.jpg') || block.title.includes('.png') || block.title.includes('.mp4') || block.title == '' ) {
+		item +=
+		`
+				<div class="info">
+		`
+	} else {
+		item +=
+		`
+				<div class="info">
+					<h3 class="title">${ block.title }</h3>
+		`
+	}
+
+	if ( block.description != null ) {
+		item +=
+		`
+					<p class="description">${ block.description}</p>
+				</div>
+			</li>
+		`
+	} else {
+		item +=
+		`
+				</div>
+			</li>
+		`
+	}
+
+	channelBlocks.insertAdjacentHTML('beforeend', item)
 }
 
 
@@ -158,9 +174,8 @@ let renderUser = (user, container) => { // You can have multiple arguments for a
 	let userAddress =
 		`
 		<address>
-			<img src="${ user.avatar_image.display }">
-			<h3>${ user.first_name }</h3>
-			<p><a href="https://are.na/${ user.slug }">Are.na profile ↗</a></p>
+			<h3><a href="https://are.na/${ user.slug }" target="blank">${ user.full_name }
+			<span class="arrow">↗<span></a></h3>
 		</address>
 		`
 	container.insertAdjacentHTML('beforeend', userAddress)
@@ -218,11 +233,139 @@ fetch(`https://api.are.na/v2/channels/${channelSlug}?per=100`, { cache: 'no-stor
 					block.classList.remove(showingClass)
 				}
 			}, {
-				root: document, // This is only needed in the example iframe!
-				rootMargin: '-40% 0% -33% 0%', // CSS-ish: top/right/bottom/left.
+				// root: document, // This is only needed in the example iframe!
+				rootMargin: '-33% 0% -33% 0%', // CSS-ish: top/right/bottom/left.
 			})
 
 			sectionObserver.observe(block) // Watch each one!
 		})
+
+		//====== filter ======
+		let currentFilter = "";
+		let allBlock = document.querySelectorAll('.block')
+		let allFilter = document.querySelectorAll('#filter span')
+
+		// textFilter.forEach((filter) => {
+		// 	filter.onclick = () => {
+		// 		if (currentFilter == "text") {
+		// 			resetFilter();
+		// 		} else {
+		// 			textFilter.forEach((text) => {
+		// 				text.style.color = "white"; //filter text to white
+		// 			})
+		// 			allBlock.forEach((block) => {
+		// 				block.style.display = "none"; //hide all blocks
+		// 			})
+		// 			textBlocks.forEach((block) => {
+		// 				block.style.display = "block"; //show text blocks
+		// 			})
+		// 			currentFilter = "text";
+		// 			//scroll to first text block
+		// 			window.scrollTo({ top: textBlocks[0].offsetTop - 20 , behavior: 'smooth' });
+		// 		}
+		// 	}
+		// })
+
+		//image filter
+		let imageFilter = document.querySelectorAll('.showImage');
+		let imageBlocks = document.querySelectorAll('.imageBlock')
+
+		imageFilter.forEach((filter) => {
+			filter.onclick = () => {
+				if (currentFilter == "image") {
+					resetFilter();
+				} else {
+					currentFilter = "image";
+					setFilter(imageFilter,imageBlocks)
+				}
+			}
+		})
+
+		//video filter
+		let videoFilter = document.querySelectorAll('.showVideo');
+		let videoBlocks = document.querySelectorAll('.videoBlock')
+
+		videoFilter.forEach((filter) => {
+			filter.onclick = () => {
+				if (currentFilter == "video") {
+					resetFilter();
+				} else {
+					currentFilter = "video";
+					setFilter(videoFilter,videoBlocks)
+				}
+			}
+		})
+
+		//text filter
+		let textFilter = document.querySelectorAll('.showText');
+		let textBlocks = document.querySelectorAll('.textBlock')
+
+		textFilter.forEach((filter) => {
+			filter.onclick = () => {
+				if (currentFilter == "text") {
+					resetFilter();
+				} else {
+					currentFilter = "text";
+					setFilter(textFilter,textBlocks)
+				}
+			}
+		})
+
+		//audio filter
+		let audioFilter = document.querySelectorAll('.showAudio');
+		let audioBlocks = document.querySelectorAll('.audioBlock')
+
+		audioFilter.forEach((filter) => {
+			filter.onclick = () => {
+				if (currentFilter == "audio") {
+					resetFilter();
+				} else {
+					currentFilter = "audio";
+					setFilter(audioFilter,audioBlocks)
+				}
+			}
+		})
+
+		//link filter
+		let linkFilter = document.querySelectorAll('.showLink');
+		let linkBlocks = document.querySelectorAll('.linkBlock')
+
+		linkFilter.forEach((filter) => {
+			filter.onclick = () => {
+				if (currentFilter == "link") {
+					resetFilter();
+				} else {
+					currentFilter = "link";
+					setFilter(linkFilter,linkBlocks)
+				}
+			}
+		})
+
+		function setFilter(typeOfFilter, typeOfBlocks) {
+			allFilter.forEach((text) => {
+				text.style.color = "var(--bg-color)";
+			})
+			typeOfFilter.forEach((text) => {
+				text.style.color = "white"; //filter text to white
+			})
+			allBlock.forEach((block) => {
+				block.style.display = "none"; //hide all blocks
+			})
+			typeOfBlocks.forEach((block) => {
+				block.style.display = "block"; //show text blocks
+			})
+			//scroll to first text block
+			window.scrollTo({ top: typeOfBlocks[0].offsetTop - 30 , behavior: 'smooth' });
+		}
+
+		function resetFilter() {
+			allFilter.forEach((text) => {
+				text.style.color = "var(--bg-color)";
+			})
+			allBlock.forEach((block) => {
+				block.style.display = "block";
+			})
+			currentFilter = "";
+		}
 
 	})
